@@ -2,16 +2,26 @@ name: Claude Code Review
 on:
   issue_comment:
     types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize]
+  issues:
+    types: [opened, edited]
 
 permissions:
-  contents: read
+  contents: write
   issues: write
   pull-requests: write
   id-token: write
 
 jobs:
   claude:
-    if: contains(github.event.comment.body, '@claude')
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request') ||
+      (github.event_name == 'issues')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
